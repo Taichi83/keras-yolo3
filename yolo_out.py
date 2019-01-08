@@ -144,7 +144,9 @@ class YOLO(object):
             left = max(0, np.floor(left + 0.5).astype('int32'))
             bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
             right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
-            print(label, (left, top), (right, bottom))
+            # calcurate bottom center 
+            center = (left + right)/2.0 
+            print(label, (left, top), (right, bottom), center)
 
             if top - label_size[1] >= 0:
                 text_origin = np.array([left, top - label_size[1]])
@@ -160,11 +162,16 @@ class YOLO(object):
                 [tuple(text_origin), tuple(text_origin + label_size)],
                 fill=self.colors[c])
             draw.text(text_origin, label, fill=(0, 0, 0), font=font)
+            
+            # drow the line between bottom and center
+            draw.line((image.size[0]/2.0,image.size[1]-1, center ,bottom), 
+                      fill=self.colors[c], width=thickness)
+            
             del draw
 
         end = timer()
         print(end - start)
-        return image, out_boxes, out_scores, out_classes
+        return image, out_boxes, out_scores, out_classes, self.class_names
 
     def close_session(self):
         self.sess.close()
